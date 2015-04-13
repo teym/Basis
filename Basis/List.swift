@@ -36,7 +36,7 @@ public struct List<A> {
 	let next : () -> (head : A, tail : List<A>)
 
 	/// Constructs a potentially infinite list.
-	init(_ next : @autoclosure () -> (head : A, tail : List<A>), isEmpty : Bool = false) {
+	init(@autoclosure(escaping) _ next :  () -> (head : A, tail : List<A>), isEmpty : Bool = false) {
 		self.count = isEmpty ? 0 : -1
 		self.next = next
 	}

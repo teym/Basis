@@ -81,7 +81,7 @@ public func |*| <A, B, C>(o : B -> B -> C, f : A -> B) -> A -> A -> C {
 /// combiner, returns a function that applies the right hand side to two arguments, then runs both
 /// results through the combiner.
 public func |*| <A, B, C>(o : (B, B) -> C, f : A -> B) -> A -> A -> C {
-	return on(o)(f)
+	return on(o)(f: f)
 }
 
 /// On | Given a "combining" function and a function that converts arguments to the target of the

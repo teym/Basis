@@ -41,7 +41,7 @@ public struct IO<A> {
 /// not be executed until the values inside are requested, either with an extract (`<-`) or a call
 /// to `unsafePerformIO()`
 public func do_<A>(fn: () -> IO<A>) -> IO<A> {
-	return IO<A>({ rw in (rw, !fn()) })
+	return IO<A>(apply: { rw in (rw, !fn()) })
 }
 
 /// Wraps up a closure returning a value in a lazy IO action.
@@ -49,7 +49,7 @@ public func do_<A>(fn: () -> IO<A>) -> IO<A> {
 /// This variant of do-blocks allows one to write more natural looking code.  The return keyword
 /// becomes monadic return.
 public func do_<A>(fn: () -> A) -> IO<A> {
-	return IO<A>({ rw in (rw, fn()) })
+	return IO<A>(apply: { rw in (rw, fn()) })
 }
 
 /// An more convenient form of unsafePerformIO.
@@ -86,7 +86,7 @@ public func getChar() -> IO<Character> {
 public func getLine() -> IO<String> {
 	return do_ { () -> String in
 		var str : UnsafeMutablePointer<Int8> = nil
-		var numBytes : UInt = 0;
+		var numBytes : Int = 0;
 		if getline(&str, &numBytes, stdin) == -1 {
 			return ""
 		}
@@ -96,7 +96,7 @@ public func getLine() -> IO<String> {
 
 /// Gets the entire contents of standard input.
 public func getContents() -> IO<String> {
-	return IO.pure(NSString(data: NSFileHandle.fileHandleWithStandardInput().availableData, encoding: NSUTF8StringEncoding) ?? "")
+	return IO.pure((NSString(data: NSFileHandle.fileHandleWithStandardInput().availableData, encoding: NSUTF8StringEncoding) ?? "") as String)
 }
 
 /// Takes a function that is given the contents of standard input.  The result of that function is
@@ -114,7 +114,7 @@ extension IO : Functor {
 
 	public static func fmap<B>(f: A -> B) -> IO<A> -> IO<B> {
 		return { io in
-			return IO<B>({ rw in
+			return IO<B>(apply: { rw in
 				let (nw, a) = io.apply(rw)
 				return (nw, f(a))
 			})
@@ -132,13 +132,13 @@ public func <% <A, B>(x : A, io : IO<B>) -> IO<A> {
 
 extension IO : Pointed {
 	public static func pure(a: A) -> IO<A> {
-		return IO<A>({ rw in (rw, a) })
+		return IO<A>(apply: { rw in (rw, a) })
 	}
 }
 
 extension IO : Applicative { 
 	public static func ap<B>(fn: IO<A -> B>) -> IO<A> -> IO<B> {
-		return { m in return IO<B>({ rw in
+		return { m in return IO<B>(apply: { rw in
 			let f = fn.unsafePerformIO()
 			let (nw, x) = m.apply(rw)
 			return (nw, f(x))
@@ -179,7 +179,7 @@ extension IO : ApplicativeOps {
 
 extension IO : Monad {
 	public func bind<B>(f: A -> IO<B>) -> IO<B> {
-		return IO<B>({ rw in
+		return IO<B>(apply: { rw in
 			let (nw, a) = self.apply(rw)
 			return f(a).apply(nw)
 		})

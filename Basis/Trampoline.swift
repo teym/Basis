@@ -36,8 +36,8 @@ public func now<T>(x : T) -> Trampoline<T> {
 /// Suspends a sub-computation that yields another Trampoline for evaluation later.
 ///
 /// Adds a branch to the computation tree of a Trampoline.
-public func later<T>(x : @autoclosure() -> Trampoline<T>) -> Trampoline<T> {
-	return Trampoline(Suspend(s: Box(x)))
+public func later<T>(@autoclosure(escaping) x : () -> Trampoline<T>) -> Trampoline<T> {
+    return Trampoline(Suspend(s: Box(x)))
 }
 
 extension Trampoline : Functor {
@@ -243,7 +243,7 @@ private class Suspend<T> : FreeId<T> {
 
 /// There's got to be a better way to do this...
 private func liftCodense<A, B>(a : FreeId<A>, k : A -> FreeId<B>) -> Codensity<B> {
-	return Codensity<B>(sub: unsafeCoerce(a), unsafeCoerce(k))
+	return Codensity<B>(sub: unsafeCoerce(a), k: unsafeCoerce(k))
 }
 
 private class Codensity<T> : FreeId<T> {
@@ -267,9 +267,9 @@ private class Codensity<T> : FreeId<T> {
 		let e : Box<() -> Trampoline<T>> = either({ p in 
 			Box.fmap({ ot in 
 				ot().t.fold({ o in
-					{ o.normalFold({ obj in Trampoline(self.k(obj)) }, { t in t.unBox()() }) }
+					{ o.normalFold({ obj in Trampoline(self.k(obj)) }, suspend: { t in t.unBox()() }) }
 				}, 
-				{ c in 
+				codense: { c in 
 					{ Trampoline(liftCodense(c.sub, { o in c.k(o).flatMap(self.k) })) }
 				}) 
 			})(p) 

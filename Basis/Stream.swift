@@ -9,9 +9,9 @@
 
 /// A lazy infinite sequence of values.
 public struct Stream<T> {
-	let step : @autoclosure() -> (head : T, tail : Stream<T>)
+    let step : () -> (head : T, tail : Stream<T>)
 	
-	init(_ step : @autoclosure() -> (head : T, tail : Stream<T>)) {
+	init(@autoclosure(escaping) _ step : () -> (head : T, tail : Stream<T>)) {
 		self.step = step
 	}
 	

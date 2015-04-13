@@ -35,7 +35,7 @@ public func writeIORef<A>(ref : IORef<A>)(v: A) -> IO<Void> {
 
 /// Applies a function to the contents of the IORef
 public func modifyIORef<A>(ref : IORef<A>)(vfn : (A -> A)) -> IO<Void> {
-	return stToIO(modifySTRef(ref.value)(vfn)) >> IO.pure(())
+	return stToIO(modifySTRef(ref.value)(f: vfn)) >> IO.pure(())
 }
 
 // MARK: Equatable

@@ -28,7 +28,7 @@ public func throwIO<A>(e : Exception) -> IO<A> {
 }
 
 public func catchException<A>(io : IO<A>)(handler: Exception -> IO<A>) -> IO<A> {
-	return catch(io)({ (let excn : Exception) in
+	return catch(io)(h: { (let excn : Exception) in
 		return handler(SomeException(excn.description ?? ""))
 	})
 }
@@ -41,7 +41,7 @@ public func mask<A, B>(io : (IO<A> -> IO<A>) -> IO<B>) -> IO<B> {
 }
 
 public func onException<A, B>(io : IO<A>)(what : IO<B>) -> IO<A> {
-	return catchException(io)({ e in
+	return catchException(io)(handler: { e in
 		return do_({
 			let b : B = !what
 			return throwIO(e)

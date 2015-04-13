@@ -40,8 +40,8 @@ public func traceStack<A>(msg : String)(e : A) -> A {
 
 /// Gets the current call stack symbols.
 public func currentCallStack() -> IO<[String]> {
-	return IO({ rw in
-		return (rw, NSThread.callStackSymbols() as [String])
+	return IO(apply: { rw in
+		return (rw, NSThread.callStackSymbols() as! [String])
 	})
 }
 

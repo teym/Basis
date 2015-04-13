@@ -28,7 +28,7 @@ public class Unique : K0, Equatable, Hashable, Comparable {
 /// times newUnique may be called.
 public func newUnique() -> IO<Unique> {
 	return do_({ () -> Unique in
-		let r = !(modifyIORef(innerSource)({ $0 + 1 }) >> readIORef(innerSource))
+		let r = !(modifyIORef(innerSource)(vfn: { $0 + 1 }) >> readIORef(innerSource))
 		return Unique(r)
 	})
 }

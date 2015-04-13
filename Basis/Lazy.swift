@@ -26,7 +26,7 @@ public func delay<A>(f : () -> A) -> Lazy<A> {
 }
 
 public func force<A>(l : Lazy<A>) -> A {
-	return (modifySTRef(l.state)({ st in
+	return (modifySTRef(l.state)(f: { st in
 		switch st {
 			case .Eventually(let f):
 				return .Now(Box(f()))

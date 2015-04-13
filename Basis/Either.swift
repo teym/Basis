@@ -20,9 +20,11 @@ public struct Either<L, R>  {
 	
 	init(left : L) {
 		self.lVal = left
+        self.rVal = nil
 	}
 	
 	init(right : R) {
+        self.lVal = nil
 		self.rVal = right
 	}
 

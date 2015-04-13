@@ -15,10 +15,12 @@ public struct Result<A> {
 
 	init(left : NSError) {
 		self.lVal = left
+        self.rVal = nil
 	}
 
 	init(right : A) {
 		self.rVal = right
+        self.lVal = nil
 	}
 
 	public static func error(x : NSError) -> Result<A> {
